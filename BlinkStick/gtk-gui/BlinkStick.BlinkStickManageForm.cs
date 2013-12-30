@@ -22,7 +22,7 @@ namespace BlinkStick
 		private global::Gtk.Label labelSerialNumber;
 		private global::Gtk.Label labelSerialNumberValue;
 		private global::Gtk.Button buttonCancel;
-		
+
 		protected virtual void Build ()
 		{
 			global::Stetic.Gui.Initialize (this);

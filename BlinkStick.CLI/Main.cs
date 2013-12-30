@@ -78,42 +78,50 @@ namespace BlinkStick.CLI
             {
                 if (device.OpenDevice ()) {
 					Console.WriteLine (String.Format ("Device {0} opened successfully", device.Serial));
-                    if (options.Info)
+					if (options.Info)
 					{
-                        PrintDeviceInfo(device, false);
+						PrintDeviceInfo(device, false);
 					}
 					else if (options.GetColor)
 					{
-                        PrintDeviceInfo(device, true);
+						PrintDeviceInfo(device, true);
 					}
-                    else if (options.SetColor != null)
-                    {
-                        if (options.SetColor == "random")
-                        {
+					else if (options.SetColor != null)
+					{
+						if (options.SetColor == "random")
+						{
 							Random r = new Random();
-                            device.SetLedColor((byte)r.Next(256), (byte)r.Next(256), (byte)r.Next(256));
-                        }
-                        else
-                        {
-                            try
-                            {
-                                device.SetLedColor(options.SetColor);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine("Error: " + e.Message);
+							((WindowsBlinkstickHid)device).SetLedIndexedColor((byte)options.Channel, (byte)options.Index, (byte)r.Next(256), (byte)r.Next(256), (byte)r.Next(256));
+						}
+						else
+						{
+							try
+							{
+								device.SetLedColor(options.SetColor);
+							}
+							catch (Exception e)
+							{
+								Console.WriteLine("Error: " + e.Message);
 								Error = true;
-                            }
-                        }
-                    }
-                    else if (options.GetInfoBlock1)
-                    {
-                        PrintDeviceInfoBlock(device, 2);
-                    }
-                    else if (options.GetInfoBlock2)
-                    {
-                        PrintDeviceInfoBlock(device, 3);
-                    }
+							}
+						}
+					}
+					else if (options.SetMode != -1)
+					{
+						((WindowsBlinkstickHid)device).SetLedMode((byte)options.SetMode);
+					}
+					else if (options.GetInfoBlock1)
+					{
+						PrintDeviceInfoBlock(device, 2);
+					}
+					else if (options.GetInfoBlock2)
+					{
+						PrintDeviceInfoBlock(device, 3);
+					}
+					else if (options.GetLedData)
+					{
+						PrintDeviceLedData(device);
+					}
                     else if (options.SetInfoBlock1 != null)
                     {
                         device.SetInfoBlock(2, options.SetInfoBlock1);
@@ -174,5 +182,25 @@ namespace BlinkStick.CLI
                 Console.WriteLine ("FAILED");
             }
         }
+
+		public static void PrintDeviceLedData(AbstractBlinkstickHid device)
+		{
+			byte[] data;
+			if (((WindowsBlinkstickHid)device).GetLedData(out data))
+			{
+				for (int j = 0; j < 8; j++)
+				{
+					for (int i = 0; i < 8; i++)
+					{
+						Console.Write(String.Format("{0:x2}{1:x2}{2:x2} ", data[j * 3 * 8 + i * 3 + 1], data[j * 3 * 8 + i * 3 + 0], data[j * 3 * 8 + i * 3 + 2]));
+					}
+					Console.WriteLine("");
+				}
+			}
+			else
+			{
+				Console.WriteLine ("FAILED");
+			}
+		}
 	}
 }

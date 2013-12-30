@@ -234,10 +234,12 @@ namespace HidLibrary
         {
             if (_deviceCapabilities.FeatureReportByteLength <= 0) return false;
 
-            var buffer = CreateFeatureOutputBuffer();
+			//!!!! there is a bug in this source code. the buffer size is incorrect because every report can have different size.
+			//var buffer = CreateFeatureOutputBuffer();
+			//var buffer = CreateBuffer(data.Length - 1);
 
-            Array.Copy(data, 0, buffer, 0, Math.Min(data.Length, _deviceCapabilities.FeatureReportByteLength));
-
+			//!!!!!Array.Copy(data, 0, buffer, 0, Math.Min(data.Length, _deviceCapabilities.FeatureReportByteLength));
+			//Array.Copy(data, 0, buffer, 0, data.Length);
 
             IntPtr hidHandle = IntPtr.Zero;
             bool success = false;
@@ -246,7 +248,8 @@ namespace HidLibrary
                 hidHandle = OpenDeviceIO(_devicePath, NativeMethods.ACCESS_NONE);
 
                 var overlapped = new NativeOverlapped();
-                success = NativeMethods.HidD_SetFeature(hidHandle, buffer, buffer.Length);
+				//success = NativeMethods.HidD_SetFeature(hidHandle, buffer, buffer.Length);
+				success = NativeMethods.HidD_SetFeature(hidHandle, data, data.Length);
             }
             catch (Exception exception)
             {
